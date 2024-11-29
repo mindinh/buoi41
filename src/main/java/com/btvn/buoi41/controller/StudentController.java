@@ -11,6 +11,9 @@ import com.btvn.buoi41.repository.RegistrationRepository;
 import com.btvn.buoi41.repository.StudentsRepository;
 import com.btvn.buoi41.specification.StudentSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,9 +52,12 @@ public class StudentController {
     @GetMapping("/search")
     public ResponseEntity<?> getStudentsByNameKeyword(
             @RequestParam(required = false) String name,
-            @RequestParam(required = false) int ageFrom,
-            @RequestParam(required = false) int ageTo,
-            @RequestParam(required = false) String email
+            @RequestParam(required = false) Integer ageFrom,
+            @RequestParam(required = false) Integer ageTo,
+            @RequestParam(required = false) String email,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,asc") String sort
     ) {
         // Cau 2 su dung JPQL
         // List<StudentEntity> studentList = studentsRepository.findByNameLike(name);
@@ -60,7 +66,10 @@ public class StudentController {
                 .and(StudentSpecification.hasAgeBetween(ageFrom, ageTo))
                 .and(StudentSpecification.hasEmail(email));
 
-        List<StudentDTO> studentList = studentsRepository.findAll(spec).stream().map(
+        Sort.Direction direction = Sort.Direction.fromString(sort.split(",")[1].toUpperCase());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort.split(",")[0]));
+
+        List<StudentDTO> studentList = studentsRepository.findAll(spec, pageable).stream().map(
             item -> {
                 StudentDTO studentDTO = new StudentDTO();
                 studentDTO.setIdStudent(item.getId());

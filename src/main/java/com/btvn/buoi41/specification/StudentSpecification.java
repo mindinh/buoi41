@@ -9,13 +9,25 @@ public class StudentSpecification {
             name != null ? criteriaBuilder.like(root.get("studentName"), "%" + name + "%") : null;
     }
 
-    public static Specification<StudentEntity> hasAgeBetween(int min, int max) {
-        return ((root, query, criteriaBuilder) ->
-            (min > 0 && max > 0 && max > min) ? criteriaBuilder.between(root.get("studentAge"), min, max) : null);
+    public static Specification<StudentEntity> hasAgeBetween(Integer min, Integer max) {
+        return ((root, query, criteriaBuilder) -> {
+            if (min != null && max != null) {
+                return criteriaBuilder.between(root.get("studentAge"), min, max);
+            }
+            else if (min != null) {
+                return criteriaBuilder.greaterThanOrEqualTo(root.get("studentAge"), min);
+            }
+            else if (max != null) {
+                return criteriaBuilder.lessThanOrEqualTo(root.get("studentAge"), max);
+            }
+            else {
+                return null;
+            }
+        });
     }
 
     public static Specification<StudentEntity> hasEmail(String email) {
         return ((root, query, criteriaBuilder) ->
-            email != null ? criteriaBuilder.like(root.get("studentEmail"), "%" + email + "%") : null);
+            email != null ? criteriaBuilder.like(root.get("studentEmail"), "%" + email) : null);
     }
 }
