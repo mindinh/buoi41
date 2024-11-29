@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: buoi41
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/demojpa
+    username: root
+    password: sa123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+
+
