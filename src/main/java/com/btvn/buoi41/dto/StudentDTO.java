@@ -9,6 +9,6 @@ import java.util.List;
 public class StudentDTO {
     private int idStudent;
     private String studentName;
-
+    private String studentEmail;
 
 }

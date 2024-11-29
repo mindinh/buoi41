@@ -2,13 +2,16 @@ package com.btvn.buoi41.controller;
 
 
 import com.btvn.buoi41.dto.CourseDTO;
+import com.btvn.buoi41.dto.StudentDTO;
 import com.btvn.buoi41.entity.CourseEntity;
 import com.btvn.buoi41.entity.RegistrationEntity;
 import com.btvn.buoi41.entity.StudentEntity;
 import com.btvn.buoi41.repository.CoursesRepository;
 import com.btvn.buoi41.repository.RegistrationRepository;
 import com.btvn.buoi41.repository.StudentsRepository;
+import com.btvn.buoi41.specification.StudentSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,10 +47,30 @@ public class StudentController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> getStudentsByNameKeyword(@RequestParam String name) {
-        List<StudentEntity> studentEntityList = studentsRepository.findByNameLike(name);
+    public ResponseEntity<?> getStudentsByNameKeyword(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) int ageFrom,
+            @RequestParam(required = false) int ageTo,
+            @RequestParam(required = false) String email
+    ) {
+        // Cau 2 su dung JPQL
+        // List<StudentEntity> studentList = studentsRepository.findByNameLike(name);
+        Specification<StudentEntity> spec = Specification
+                .where(StudentSpecification.hasName(name))
+                .and(StudentSpecification.hasAgeBetween(ageFrom, ageTo))
+                .and(StudentSpecification.hasEmail(email));
 
-        return ResponseEntity.ok(studentEntityList);
+        List<StudentDTO> studentList = studentsRepository.findAll(spec).stream().map(
+            item -> {
+                StudentDTO studentDTO = new StudentDTO();
+                studentDTO.setIdStudent(item.getId());
+                studentDTO.setStudentName(item.getStudentName());
+                studentDTO.setStudentEmail(item.getStudentEmail());
+
+                return studentDTO;
+        }).toList();
+
+        return ResponseEntity.ok(studentList);
     }
 
     @GetMapping("{id}/courses")

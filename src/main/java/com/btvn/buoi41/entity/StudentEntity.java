@@ -21,6 +21,9 @@ public class StudentEntity {
     @Column(name = "age")
     private int studentAge;
 
+    @Column(name = "email")
+    private String studentEmail;
+
     @OneToMany(mappedBy = "student")
     private List<RegistrationEntity> registrations;
 
